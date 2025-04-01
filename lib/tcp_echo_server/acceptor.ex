@@ -12,7 +12,7 @@ defmodule TCPEchoServer.Acceptor do
 
     listen_options = [
       :binary,
-      active: true,
+      active: :once,
       exit_on_close: false,
       reuseaddr: true,
       backlog: 25
