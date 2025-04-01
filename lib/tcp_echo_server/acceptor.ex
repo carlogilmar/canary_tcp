@@ -37,14 +37,14 @@ defmodule TCPEchoServer.Acceptor do
   def handle_info(:accept, listen_socket) do
     case :gen_tcp.accept(listen_socket, 2_000) do
       {:ok, socket} ->
-        {:ok, pid} = TCPEchoServer.Connection.start_link(listen_socket)
-        :ok = :gen_tcp.controlling_process(socket, pid)
+        #{:ok, pid} = TCPEchoServer.Connection.start_link(listen_socket)
+        #:ok = :gen_tcp.controlling_process(socket, pid)
         send(self(), :accept)
         {:noreply, listen_socket}
 
       {:error, :timeout} ->
         # Error when try to accept a new connection
-        send(self(), listen_socket)
+        send(self(), :accept)
         {:noreply, listen_socket}
 
       {:error, reason} ->
