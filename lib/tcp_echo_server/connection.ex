@@ -28,7 +28,6 @@ defmodule TCPEchoServer.Connection do
         {:tcp, socket, data},
         %__MODULE__{socket: socket} = state
       ) do
-    IO.puts("Connection Handle Info!!! I'm here!")
     state = update_in(state.buffer, &(&1 <> data))
     state = handle_new_data(state)
     {:noreply, state}
