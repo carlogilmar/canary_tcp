@@ -21,8 +21,7 @@ defmodule TCPEchoServer.Acceptor do
     # Step 1: Start the TCP server by listening for connections
     case :gen_tcp.listen(port, listen_options) do
       {:ok, listen_socket} ->
-        Logger.info("========================================")
-        Logger.info("TCP Server here in port #{port}")
+        Logger.info("Step 1: TCP Server here in port #{port}")
         # Message passing to this process
         send(self(), :accept)
         {:ok, listen_socket}
@@ -35,15 +34,23 @@ defmodule TCPEchoServer.Acceptor do
   # Step 2: After listen for connections, then accept a new one
   @impl true
   def handle_info(:accept, listen_socket) do
+    Logger.info("Step 2: Accept a new incoming connection")
+
     case :gen_tcp.accept(listen_socket, 2_000) do
       {:ok, socket} ->
-        #{:ok, pid} = TCPEchoServer.Connection.start_link(listen_socket)
-        #:ok = :gen_tcp.controlling_process(socket, pid)
+        Logger.info("Step 3: New connection is requested. Processing...")
+
+        # Create a new process for handle this connection
+        {:ok, pid} = TCPEchoServer.Connection.start_link(socket)
+        # Give to that process the control over the connection
+        :ok = :gen_tcp.controlling_process(socket, pid)
+        # Accept another incoming connection
         send(self(), :accept)
+
         {:noreply, listen_socket}
 
       {:error, :timeout} ->
-        # Error when try to accept a new connection
+        # Default mode... listening for a new connection
         send(self(), :accept)
         {:noreply, listen_socket}
 
